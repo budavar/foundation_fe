@@ -1,20 +1,23 @@
 <template>
-  <div class="form-group mb-3">
+  <div class="form-group" :class="formGroupPlus">
     <label
       :for="name"
-      class="mb-1"
+      :class="labelClass"
       v-if="labelText">{{labelText}}
     </label>
-    <input
-      :name="name"
-      type="text"
-      :class="'form-control ' + layoutClass"
-      :placeholder="placeholder"
-      :value="modelValue"
-      :readonly="serverRequestInProgress"
-      :autocomplete="autocomplete"
-      @blur="checkValue"
-      @input="handleInput">
+    <div :class="'input-group ' + layoutClass">
+      <input
+        :name="name"
+        type="text"
+        class="form-control"
+        :placeholder="placeholder"
+        :value="modelValue"
+        :readonly="serverRequestInProgress"
+        :autocomplete="autocomplete"
+        @blur="checkValue"
+        @input="handleInput">
+      <slot name="suffix-icon"></slot>
+    </div>
     <div v-if="errorsToShow.length > 0">
       <!-- eslint-disable --> 
       <p v-for="e in errorsToShow" class="fw-italic text-danger m-0 p-0">{{e}}</p>
@@ -34,8 +37,9 @@ export default {
     modelValue: { type: String, required: true },
     placeholder: { type: String, default: null },
     externalErrors: { default: {} },
+    formGroupPlus: { type: String, default: 'mb-3' },
     layoutClass: { type: String, default: null },
-    labelClass: { type: String, default: null },
+    labelClass: { type: String, default: 'mb-1 input-label-style' },
     autocomplete: { type: String, default: null },
     labelText: { type: String, default: null },
     validationRules: { default: [] },

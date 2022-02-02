@@ -144,14 +144,14 @@ export default {
               optionKey: 'group.create',
               iconPrefix: 'fas',
               iconName: 'users',
-              route: '/groups/'
+              route: '/groups/create'
             },
             {
               label: 'My Groups',
-              optionKey: 'groups.myGroups',
+              optionKey: 'group.myGroups',
               iconPrefix: 'fas',
               iconName: 'users',
-              route: ''
+              route: '/groups'
             }
           ]
         }

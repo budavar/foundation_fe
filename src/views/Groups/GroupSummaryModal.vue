@@ -1,9 +1,9 @@
 <template>
-<div class="modal fade" id="groupActionModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="groupActionModalLabel" aria-hidden="true">
+<div class="modal fade" id="groupSummaryModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="groupSummaryModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="groupActionModalLabel">Group</h5>
+        <h5 class="modal-title" id="groupSummaryModalLabel">Group</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -11,17 +11,15 @@
           <h5>{{group.name}}</h5>
         </div>
         <p class="text-center">
-          <h5>{{group.description}}</h5>
+          {{group.description}}
         </p>
         <hr/>
         <p class="text-center">{{currentState}}</p>
         <hr/>
         <div class="d-grid gap-2">
-          <button v-if="requestToJoin" class="btn btn-success" type="button" @click="processRequest('requestToJoin', 'Requesting To Join the group')">Join Group</button>
-          <button v-if="cancelRequestToJoin" class="btn btn-success" type="button" @click="processRequest('cancelRequestToJoin', 'Cancelling Join Request')">Cancel Join Request</button>
-          <button v-if="leaveGroup" class="btn btn-danger" type="button" @click="processRequest('leaveGroup', 'Leaving the Group')">Leave</button>
-          <button v-if="activateGroup" class="btn btn-danger" type="button" @click="processRequest('activateGroup', 'Setting Group State to Active')">Activate</button>
-          <button v-if="deactivateGroup" class="btn btn-warning" type="button" @click="processRequest('deactivateGroup', 'Setting Group State to Inactive')">Deactivate</button>
+          <button v-if="requestToJoin" class="btn btn-primary" type="button" @click="processRequest('createGroupMember', 'Requesting To Join the group')">Join Group</button>
+          <button v-if="acceptInviteToJOin" class="btn btn-success" type="button" @click="processRequest('updateGroupMember', 'Accepting Invitation to Join Group')">Accept Invite</button>
+          <button v-if="cancelRequestToJoin" class="btn btn-danger" type="button" @click="processRequest('deleteGroupMember', 'Cancelling Join Request')">Cancel Join Request</button>
           <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">cancel</button>
         </div>
         <FlashMessage :message="message" :msg-type="msgType" @clear-message="message = null" />
@@ -37,7 +35,7 @@ import FlashMessage from '@/components/FlashMessage'
 import { fileLocations } from "@/config/BaseConfig"
 
 export default {
-  name: 'GroupActionModal',
+  name: 'GroupSummaryModal',
 
   components: {
     FlashMessage
@@ -45,18 +43,16 @@ export default {
 
   props: {
     group: { type: Object, required: true },
-    action: { type: String, required: true }
+    memberAction: { type: String, required: true }
   },
 
   data () {
     return {
-      modalName: 'groupActionModal',
+      modalName: 'groupSummaryModal',
       avatarLocation: fileLocations.groupPhoto,
       requestToJoin: null,
       cancelRequestToJoin: false,
-      leaveGroup: false,
-      activateGroup: false,
-      deactivateGroup: false,
+      acceptInviteToJOin: false,
       message: null,
       msgType: null
     }
@@ -68,15 +64,12 @@ export default {
   },
 
   watch: {
-    'action': function (newVal, oldVal) {
-
+    memberAction: function (newVal, oldVal) {
       this.requestToJoin = false
       this.cancelRequestToJoin = false
-      this.leaveGroup = false
-      this.activateGroup = false
-      this.deactivateGroup = false
+      this.acceptInviteToJOin = false
 
-      switch (action) {
+      switch (newVal) {
         case 'requestToJoin':
           this.requestToJoin = true
           this.currentState = ""
@@ -85,16 +78,8 @@ export default {
           this.cancelRequestToJoin = true
           this.currentState = 'Your request to join the group is still pending approval'
           break
-        case 'leaveGroup':
-          this.leaveGroup = true
-          this.currentState = ""
-          break
-        case 'activateGroup':
-          this.activateGroup = true
-          this.currentState = 'The group was deactivated on ' + this.group.status_changed_at.substring(0, 10) + ' at ' + this.group.status_changed_at.substring(11)
-          break
-        case 'deactivateGroup':
-          this.deactivateGroup = true
+        case 'acceptInviteToJOin':
+          this.acceptInviteToJOin = true
           this.currentState = ""
           break
       }
@@ -106,7 +91,7 @@ export default {
   },
 
   methods: {
-    ...mapActions('group', ['createGroupMember', 'removeGroupMember', 'flipActiveState']),
+    ...mapActions('group', ['createGroupMember', 'removeGroupMember', 'updateGroupMember']),
 
     processRequest (realAction, userAction) {
       this[realAction](this.friend.friend_resource_id)

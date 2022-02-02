@@ -1,31 +1,52 @@
 <template>
-  <GroupActionModal
-    :group="group"
+  <GroupEditModal
     @register-modal="registerModal"
     @close-modal="closeModal">
-  </GroupActionModal>
+  </GroupEditModal>
+  <MemberAdminModal
+    :member="data.member"
+    @register-modal="registerModal"
+    @close-modal="closeModal">
+  </MemberAdminModal>
+  <GroupSummaryModal
+    :group="data.group"
+    @register-modal="registerModal"
+    @close-modal="closeModal">
+  </GroupSummaryModal>
 </template>
 
 <script>
 
-import GroupActionModal from './GroupActionModal'
+import GroupEditModal from './GroupEditModal'
+import MemberAdminModal from './MemberAdminModal'
+import GroupSummaryModal from './GroupSummaryModal'
 import { Modal } from 'bootstrap'
 
 export default {
   name: 'GroupModals',
 
   components: {
-    GroupActionModal
-  },
-
-  props: {
-    group: { type: Object, required: true }
+    GroupEditModal,
+    MemberAdminModal,
+    GroupSummaryModal
   },
 
   data () {
     return {
+      focus: null,
+      data: {
+        group: {},
+        member: {
+          user: {
+            name: "A",
+            avatar: null
+          }
+        }
+      },
       modals: {
-        groupActionModal: null
+        groupEditModal: null,
+        memberAdminModal: null,
+        groupSummaryModal: null
       }
     }
   },
@@ -44,8 +65,13 @@ export default {
       this.modals[modalID].hide()
     },
 
-    openModal (modalID) {
-      this.modals[modalID].show()
+    openModal (payload) {
+      if (typeof payload === 'string') {
+        this.modals[payload].show()
+      } else {
+        this.data[payload.focus] = payload.data
+        this.modals[payload.modal].show()
+      }
     },
 
     registerModal (modalID) {

@@ -3,7 +3,7 @@
     <div>
       <label
         :for="name"
-        class="mb-1"
+        :class="labelClass"
         v-if="labelText">{{labelText}}
       </label>
     </div>
@@ -42,7 +42,7 @@ export default {
     placeholder: { type: String, default: null },
     externalErrors: { default: {} },
     layoutClass: { type: String, default: null },
-    labelClass: { type: String, default: null },
+    labelClass: { type: String, default: 'mb-1 input-label-style' },
     autocomplete: { type: String, default: null },
     labelText: { type: String, default: null },
     validationRules: { default: [] },

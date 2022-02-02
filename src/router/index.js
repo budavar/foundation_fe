@@ -29,6 +29,10 @@ const FriendSearch = () => import('../views/Friends/FriendSearch')
 
 // Group Management Routes
 const NewGroup = () => import('../views/Groups/NewGroup')
+const GroupList = () => import('../views/Groups/GroupList')
+const GroupLayout = () => import('../views/Groups/GroupLayout')
+const GroupLayoutDetails = () => import('../views/Groups/GroupLayouts/GroupDetails')
+const GroupLayoutMembers = () => import('../views/Groups/GroupLayouts/GroupMembers')
 
 const AdminChildRoute = (prop) => [
   {
@@ -90,18 +94,47 @@ const FriendsChildRoute = (prop) => [
   },
   {
     path: '/friends/search',
-    name: prop + '.friendSearch',
-    meta: { middleware: [auth], name: 'friendSearch' },
+    name: prop + '.search',
+    meta: { middleware: [auth], name: 'search' },
     component: FriendSearch
   }
 ]
 
 const GroupsChildRoute = (prop) => [
   {
+    path: '/groups/create',
+    name: prop + '.create',
+    meta: { middleware: [auth], name: 'create' },
+    component: NewGroup
+  },
+  {
+    path: '/groups/:groupId',
+    name: prop + '.control',
+    props: true,
+    meta: { middleware: [auth], name: 'control' },
+    component: GroupLayout,
+    children: GroupLayoutChildRoute(prop + '.control')
+  },
+  {
     path: '/groups/',
     name: prop + '.myGroups',
     meta: { middleware: [auth], name: 'myGroups' },
-    component: NewGroup
+    component: GroupList
+  }
+]
+
+const GroupLayoutChildRoute = (prop) => [
+  {
+    path: '/groups/:groupId/details/',
+    name: prop + '.details',
+    meta: { middleware: [auth], name: 'details' },
+    component: GroupLayoutDetails
+  },
+  {
+    path: '/groups/:groupId/members/',
+    name: prop + '.members',
+    meta: { middleware: [auth], name: 'members' },
+    component: GroupLayoutMembers
   }
 ]
 

@@ -1,10 +1,19 @@
 .hd-style {
   color: var(--bs-indigo) 
 }
+.input-label-style {
+  color: var(--bs-indigo) 
+}
+.attr-label-style {
+  color: var(--bs-indigo) 
+}
 .no-bullets {
   list-style-type: none;
   padding: 0px;
 }
 .isClickable {
   cursor: pointer;
+}
+.bg-indigo-light {
+  background: #e9def5;
 }
