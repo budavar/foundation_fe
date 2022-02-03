@@ -13,6 +13,9 @@ export const mutations = {
   ADD_GROUP (state, group) {
     state.groups.push(group)
   },
+  ADD_MEMBER (state, member) {
+    state.currentGroup.members.push(member)
+  },
   SET_CURRENT_GROUP (state, payload) {
     state.currentGroup = payload
   },
@@ -49,7 +52,17 @@ export const actions = {
   },
   createGroupMember ({ commit }) {
     /* eslint-disable */
-    commit("SET_ERROR", error.response)
+    return new Promise((resolve, reject) => {
+      GroupService.memberCreate(payload)
+        .then((response) => {
+          commit("ADD_MEMBER", response.data)
+          resolve(response)
+        })
+        .catch((error) => {
+          commit("SET_ERROR", error.response)
+          reject(error)
+        })
+    })
     /* eslint-enable */
   },
   getMyGroups ({ commit }) {

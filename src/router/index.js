@@ -33,6 +33,7 @@ const GroupList = () => import('../views/Groups/GroupList')
 const GroupLayout = () => import('../views/Groups/GroupLayout')
 const GroupLayoutDetails = () => import('../views/Groups/GroupLayouts/GroupDetails')
 const GroupLayoutMembers = () => import('../views/Groups/GroupLayouts/GroupMembers')
+const GroupLayoutAddMembers = () => import('../views/Groups/GroupLayouts/GroupAddMembers')
 
 const AdminChildRoute = (prop) => [
   {
@@ -135,6 +136,12 @@ const GroupLayoutChildRoute = (prop) => [
     name: prop + '.members',
     meta: { middleware: [auth], name: 'members' },
     component: GroupLayoutMembers
+  },
+  {
+    path: '/groups/:groupId/add-members/',
+    name: prop + '.addMembers',
+    meta: { middleware: [auth], name: 'addMembers' },
+    component: GroupLayoutAddMembers
   }
 ]
 

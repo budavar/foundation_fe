@@ -18,5 +18,10 @@ export default {
       }
     }
     return API.apiClient.post('/groups/' + id, payload, config)
+  },
+
+  memberCreate (id, payload) {
+    return API.apiClient.post('/groups/' + id + '/new-member', payload)
   }
+
 }

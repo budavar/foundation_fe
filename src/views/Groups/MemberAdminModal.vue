@@ -1,9 +1,9 @@
 <template>
-<div class="modal fade" id="MemberAdminModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="MemberAdminModalLabel" aria-hidden="true">
+<div class="modal fade" id="memberAdminModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="memberAdminModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="MemberAdminModalLabel">Member Management</h5>
+        <h5 class="modal-title" id="memberAdminModalLabel">Member Management</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -29,6 +29,8 @@
           <button v-if="showDecline" class="btn btn-danger" type="button" @click="processRequest('deleteMember', 'Decliningg')">Decline</button>
           <button v-if="showRemove" class="btn btn-danger" type="button" @click="processRequest('deleteMember', 'Deleting')">Remove</button>
           <button v-if="showBlock" class="btn btn-warning" type="button" @click="processRequest('blockMember', 'Blocking')">Block</button>
+          <button v-if="showMakeAdmin" class="btn btn-primary" type="button" @click="processRequest('changeRole', 'Changing Role to Admin', 'admin')">Make Admin</button>
+          <button v-if="showMakeMember" class="btn btn-primary" type="button" @click="processRequest('changeRole', 'Changing Role to Member', 'member')">Remove Admin</button>
           <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">cancel</button>
         </div>
         <FlashMessage :message="message" :msg-type="msgType" @clear-message="message = null" />
@@ -66,6 +68,8 @@ export default {
       showDecline: false,
       showRemove: false,
       showBlock: false,
+      showMakeAdmin: false,
+      showMakeMember: false,
       message: null,
       msgType: null
     }
@@ -77,34 +81,10 @@ export default {
   },
 
   watch: {
-    'member.status': function (newVal, oldVal) {
-      this.showAccept = false
-      this.showUnblock = false
-      this.showDecline = false
-      this.showRemove = false
-      this.showBlock = false
-
-      switch (newVal) {
-        case 'active':
-          this.showRemove = true
-          this.showBlock = true
-          this.currentState = this.member.name + ' joined the group on' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11)
-          break
-        case 'blocked':
-          this.showRemove = true
-          this.showAccept = true
-          this.currentState = this.member.name + ' was blocked on ' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11)
-          break
-        case 'invited':
-          this.showRemove = true
-          this.currentState = this.member.name + ' was invited to join the group on ' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11)
-          break
-        case 'requested':
-          this.showAccept = true
-          this.showDecline = true
-          this.showBlock = true
-          this.currentState = this.member.name + ' sent request to join the group on ' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11)
-          break
+    'member.status': {
+      immediate: true,
+      handler (newVal, oldVal) {
+        this.setCurrentState(newVal)
       }
     }
   },
@@ -114,10 +94,10 @@ export default {
   },
 
   methods: {
-    ...mapActions('group', ['acceptMember', 'blockMember', 'deleteMember']),
+    ...mapActions('group', ['acceptMember', 'blockMember', 'deleteMember', 'changeRole']),
 
-    processRequest (realAction, userAction) {
-      this[realAction](this.friend.friend_resource_id)
+    processRequest (realAction, userAction, data = null) {
+      this[realAction](this.member.id, data)
         .then(response => {
           this.$emit('close-modal', this.modalName)
         })
@@ -126,6 +106,44 @@ export default {
           this.message = 'Unexpected error ' + userAction + ' friend request'
           this.msgType = 'danger'
         })
+    },
+
+    setCurrentState (memberStatus) {
+      this.showAccept = false
+      this.showUnblock = false
+      this.showDecline = false
+      this.showRemove = false
+      this.showBlock = false
+      this.showMakeAdmin = false
+      this.showMakeMember = false
+
+      switch (memberStatus) {
+        case 'active':
+          this.showRemove = true
+          this.showBlock = true
+          if (this.member.role === 'member') {
+            this.showMakeAdmin = true
+          } else {
+            this.showMakeMember = true
+          }
+          this.currentState = this.member.user.name + ' joined the group on ' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11, 16)
+          break
+        case 'blocked':
+          this.showRemove = true
+          this.showAccept = true
+          this.currentState = this.member.user.name + ' was blocked on ' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11, 16)
+          break
+        case 'invited':
+          this.showRemove = true
+          this.currentState = this.member.user.name + ' was invited to join the group on ' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11, 16)
+          break
+        case 'requested':
+          this.showAccept = true
+          this.showDecline = true
+          this.showBlock = true
+          this.currentState = this.member.user.name + ' sent request to join the group on ' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11, 16)
+          break
+      }
     }
   }
 }

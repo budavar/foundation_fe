@@ -9,7 +9,11 @@
         <h4 class="ms-3"><strong>{{getGroup.name}}</strong></h4>
       </div>
     </div>
-    <h5 class="mt-3 text-center hd-style">Members</h5>
+    <h5 class="mt-3 text-center hd-style">Members
+      <router-link :to="'/groups/' + this.getGroup.id + '/add-members'">
+        <font-awesome-icon icon="plus-circle" class="ms-2 isClickable hd-style" />
+      </router-link>
+    </h5>
     <ul class="no-bullets">
       <li v-for="member in getGroup.members" :key="member.id">
         <PersonLine

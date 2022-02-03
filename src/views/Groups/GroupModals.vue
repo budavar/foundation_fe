@@ -3,12 +3,12 @@
     @register-modal="registerModal"
     @close-modal="closeModal">
   </GroupEditModal>
-  <MemberAdminModal
+  <MemberAdminModal v-if="data.member != null"
     :member="data.member"
     @register-modal="registerModal"
     @close-modal="closeModal">
   </MemberAdminModal>
-  <GroupSummaryModal
+  <GroupSummaryModal v-if="data.group != null"
     :group="data.group"
     @register-modal="registerModal"
     @close-modal="closeModal">
@@ -35,13 +35,8 @@ export default {
     return {
       focus: null,
       data: {
-        group: {},
-        member: {
-          user: {
-            name: "A",
-            avatar: null
-          }
-        }
+        group: null,
+        member: null
       },
       modals: {
         groupEditModal: null,
@@ -69,13 +64,20 @@ export default {
       if (typeof payload === 'string') {
         this.modals[payload].show()
       } else {
-        this.data[payload.focus] = payload.data
-        this.modals[payload.modal].show()
+        if (this.data[payload.focus] === null) {
+          this.data[payload.focus] = payload.data
+        } else {
+          this.data[payload.focus] = payload.data
+          this.modals[payload.modal].show()
+        }
       }
     },
 
     registerModal (modalID) {
       this.modals[modalID] = new Modal(document.getElementById(modalID))
+      if (['groupSummaryModal', 'memberAdminModal'].includes(modalID)) {
+        this.modals[modalID].show()
+      }
     }
   }
 }
