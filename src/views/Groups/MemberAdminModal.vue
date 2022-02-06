@@ -24,13 +24,13 @@
         <p class="text-center">{{currentState}}</p>
         <hr/>
         <div class="d-grid gap-2">
-          <button v-if="showAccept" class="btn btn-success" type="button" @click="processRequest('acceptMember', 'Accepting')">Accept</button>
-          <button v-if="showUnblock" class="btn btn-success" type="button" @click="processRequest('acceptMember', 'Unblocking')">Unblock</button>
-          <button v-if="showDecline" class="btn btn-danger" type="button" @click="processRequest('deleteMember', 'Decliningg')">Decline</button>
-          <button v-if="showRemove" class="btn btn-danger" type="button" @click="processRequest('deleteMember', 'Deleting')">Remove</button>
-          <button v-if="showBlock" class="btn btn-warning" type="button" @click="processRequest('blockMember', 'Blocking')">Block</button>
-          <button v-if="showMakeAdmin" class="btn btn-primary" type="button" @click="processRequest('changeRole', 'Changing Role to Admin', 'admin')">Make Admin</button>
-          <button v-if="showMakeMember" class="btn btn-primary" type="button" @click="processRequest('changeRole', 'Changing Role to Member', 'member')">Remove Admin</button>
+          <button v-if="showAccept" class="btn btn-success" type="button" @click="processRequest('activateGroupMember', 'Accepting')">{{member.status === 'blocked' ? 'Unblock' : 'Accept'}}</button>
+          <button v-if="showUnblock" class="btn btn-success" type="button" @click="processRequest('activateGroupMember', 'Unblocking')">Unblock</button>
+          <button v-if="showDecline" class="btn btn-danger" type="button" @click="processRequest('removeGroupMember', 'Decliningg')">Decline</button>
+          <button v-if="showRemove" class="btn btn-danger" type="button" @click="processRequest('removeGroupMember', 'Deleting')">Remove</button>
+          <button v-if="showBlock" class="btn btn-warning" type="button" @click="processRequest('blockGroupMember', 'Blocking')">Block</button>
+          <button v-if="showMakeAdmin" class="btn btn-primary" type="button" @click="processRequest('changeMemberRole', 'Changing Role to Admin', 'admin')">Make Admin</button>
+          <button v-if="showMakeMember" class="btn btn-primary" type="button" @click="processRequest('changeMemberRole', 'Changing Role to Member', 'member')">Remove Admin</button>
           <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">cancel</button>
         </div>
         <FlashMessage :message="message" :msg-type="msgType" @clear-message="message = null" />
@@ -86,6 +86,19 @@ export default {
       handler (newVal, oldVal) {
         this.setCurrentState(newVal)
       }
+    },
+    'member.role': {
+      immediate: true,
+      handler (newVal, oldVal) {
+        this.showMakeMember = false
+        this.showMakeAdmin = false
+        if (newVal === 'member') {
+          this.showMakeAdmin = true
+        }
+        if (newVal === 'admin') {
+          this.showMakeMember = true
+        }
+      }
     }
   },
 
@@ -94,10 +107,18 @@ export default {
   },
 
   methods: {
-    ...mapActions('group', ['acceptMember', 'blockMember', 'deleteMember', 'changeRole']),
+    ...mapActions('group', ['activateGroupMember', 'blockGroupMember', 'removeGroupMember', 'changeMemberRole']),
 
-    processRequest (realAction, userAction, data = null) {
-      this[realAction](this.member.id, data)
+    processRequest (realAction, userAction, changeToRole = null) {
+      const payload = {
+        groupId: this.member.group_id,
+        memberId: this.member.id,
+        action: 'member-management',
+        data: {
+          change_to_role: changeToRole
+        }
+      }
+      this[realAction](payload)
         .then(response => {
           this.$emit('close-modal', this.modalName)
         })
@@ -114,18 +135,16 @@ export default {
       this.showDecline = false
       this.showRemove = false
       this.showBlock = false
-      this.showMakeAdmin = false
-      this.showMakeMember = false
+
+      if (this.member.role === 'owner') {
+        this.currentState = this.member.user.name + ' is the group owner and cannot be managed via this option.  To change owner, please select the Group Change Owner Option.  You must be the Group Owner access this action.'
+        return
+      }
 
       switch (memberStatus) {
         case 'active':
           this.showRemove = true
           this.showBlock = true
-          if (this.member.role === 'member') {
-            this.showMakeAdmin = true
-          } else {
-            this.showMakeMember = true
-          }
           this.currentState = this.member.user.name + ' joined the group on ' + this.member.updated_at.substring(0, 10) + ' at ' + this.member.updated_at.substring(11, 16)
           break
         case 'blocked':

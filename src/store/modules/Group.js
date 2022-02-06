@@ -16,6 +16,18 @@ export const mutations = {
   ADD_MEMBER (state, member) {
     state.currentGroup.members.push(member)
   },
+  REMOVE_GROUP (state, payload) {
+    const index = state.groups.findIndex(item => item.id === payload)
+    if (index > -1) {
+      state.groups.splice(index, 1)
+    }
+  },
+  REMOVE_MEMBER (state, payload) {
+    const index = state.currentGroup.members.findIndex(item => item.id === payload)
+    if (index > -1) {
+      state.currentGroup.members.splice(index, 1)
+    }
+  },
   SET_CURRENT_GROUP (state, payload) {
     state.currentGroup = payload
   },
@@ -31,10 +43,72 @@ export const mutations = {
   },
   SET_ERROR (state, error) {
     state.error = error
+  },
+  UPDATE_MEMBER (state, payload) {
+    // Update the member being managed
+    let index = state.currentGroup.members.findIndex(item => item.id === payload.id)
+    state.currentGroup.members[index] = payload
+    // Get the Group entry from the list
+    index = state.groups.findIndex(item => item.id === payload.group_id)
+    if (index > -1) {
+      // If the member being managed is me then update as well.  Also update the my_authority entry based on role
+      if (state.groups[index].my_member.id === payload.id) {
+        state.groups[index].my_member = payload
+        state.groups[index]._my_authority = payload.role
+      }
+    }
   }
 }
 
 export const actions = {
+  activateGroupMember ({ commit }, payload) {
+    /* eslint-disable */
+    return new Promise((resolve, reject) => {
+      GroupService.memberActivate(payload.memberId)
+        .then((response) => {
+          commit("UPDATE_MEMBER", response.data)
+          resolve(response)
+        })
+        .catch((error) => {
+          console.log(error)
+          commit("SET_ERROR", error.response)
+          reject(error)
+        })
+    })
+    /* eslint-enable */
+  },
+  blockGroupMember ({ commit }, payload) {
+    /* eslint-disable */
+    return new Promise((resolve, reject) => {
+      GroupService.memberBlock(payload.memberId)
+        .then((response) => {
+          commit("UPDATE_MEMBER", response.data)
+          resolve(response)
+        })
+        .catch((error) => {
+          console.log(error)
+          commit("SET_ERROR", error.response)
+          reject(error)
+        })
+    })
+    /* eslint-enable */
+  },
+  changeMemberRole ({ commit }, payload) {
+    /* eslint-disable */
+    return new Promise((resolve, reject) => {
+      GroupService.memberChangeRole(payload)
+        .then((response) => {
+          commit("UPDATE_MEMBER", response.data)
+          resolve(response)
+        })
+        .catch((error) => {
+          console.log(error)
+          commit("SET_ERROR", error.response)
+          reject(error)
+        })
+    })
+    /* eslint-enable */
+  },
   createGroup ({ commit }, payload) {
     /* eslint-disable */
     return new Promise((resolve, reject) => {
@@ -50,15 +124,22 @@ export const actions = {
     })
     /* eslint-enable */
   },
-  createGroupMember ({ commit }) {
+  createGroupMember ({ commit }, payload) {
     /* eslint-disable */
     return new Promise((resolve, reject) => {
       GroupService.memberCreate(payload)
         .then((response) => {
-          commit("ADD_MEMBER", response.data)
+          if (payload.action === 'member-management') {
+            commit("ADD_MEMBER", response.data)
+          }
+          // Remove Group from list of available groups to join
+          if (payload.action === 'personal') {
+            commit("REMOVE_GROUP", payload.groupId)
+          }
           resolve(response)
         })
         .catch((error) => {
+          console.log(error)
           commit("SET_ERROR", error.response)
           reject(error)
         })
@@ -72,7 +153,6 @@ export const actions = {
       commit("SET_LOADING", true)
       GroupService.myGroups()
         .then((response) => {
-          console.log(response.data)
           commit("SET_GROUPS", response.data.groups)
           commit("SET_LOADING", false)
           resolve('loaded')
@@ -85,6 +165,12 @@ export const actions = {
     })
     /* eslint-enable */
   },
+  groupSearchInit ({ commit }) {
+    /* eslint-disable */
+    commit("SET_GROUPS", [])
+    commit("SET_LOADING", false)
+    /* eslint-enable */
+  },
   loadGroup ({ commit }, payload) {
     /* eslint-disable */
     commit("SET_LOADING", true)
@@ -92,7 +178,6 @@ export const actions = {
       commit("SET_LOADING", true)
       GroupService.getGroup(payload)
         .then((response) => {
-          console.log(response.data)
           commit("SET_CURRENT_GROUP", response.data)
           commit("SET_LOADING", false)
           resolve('loaded')
@@ -105,9 +190,45 @@ export const actions = {
     })
     /* eslint-enable */
   },
-  removeGroupMember ({ commit }) {
+  removeGroupMember ({ commit }, payload) {
     /* eslint-disable */
-    commit("SET_ERROR", error.response)
+    return new Promise((resolve, reject) => {
+      GroupService.memberRemove(payload.memberId)
+        .then((response) => {
+          if (payload.action === 'member-management') {
+            commit("REMOVE_MEMBER", payload.memberId)
+          }
+          // Remove Group from list of groups
+          if (payload.action === 'personal') {
+            commit("REMOVE_GROUP", payload.groupId)
+          }
+          resolve(response)
+        })
+        .catch((error) => {
+          console.log(error)
+          commit("SET_ERROR", error.response)
+          reject(error)
+        })
+    })
+    /* eslint-enable */
+  },
+  searchForGroups ({ commit }, payload) {
+    /* eslint-disable */
+    commit("SET_LOADING", true)
+    return new Promise((resolve, reject) => {
+      commit("SET_LOADING", true)
+      GroupService.search(payload)
+        .then((response) => {
+          commit("SET_GROUPS", response.data.groups.map(obj => ({ ...obj, my_member: null })))
+          commit("SET_LOADING", false)
+          resolve('loaded')
+        })
+        .catch((error) => {
+          commit("SET_ERROR", error.response)
+          commit("SET_LOADING", false)
+          reject(error)
+        })
+    })
     /* eslint-enable */
   },
   updateGroupDetails ({ commit }, payload) {
@@ -138,6 +259,9 @@ export const getters = {
   },
   getGroup: (state) => {
     return state.currentGroup
+  },
+  getGroupAuthority: (state) => {
+    return state.currentGroup._my_authority
   },
   loading: (state) => {
     return state.loading

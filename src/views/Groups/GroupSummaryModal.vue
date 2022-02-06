@@ -3,23 +3,23 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="groupSummaryModalLabel">Group</h5>
+        <h5 class="modal-title" id="groupSummaryModalLabel">{{group.name}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="text-center">
-          <h5>{{group.name}}</h5>
-        </div>
-        <p class="text-center">
+        <img v-if="group.photo === null" src="https://via.placeholder.com/480x270.png" class="w-100">
+        <img v-else :src="photoLocation + group.photo" class="w-100">
+        <p class="text-center mt-2">
           {{group.description}}
         </p>
-        <hr/>
+        <hr v-if="currentState != null"/>
         <p class="text-center">{{currentState}}</p>
         <hr/>
         <div class="d-grid gap-2">
           <button v-if="requestToJoin" class="btn btn-primary" type="button" @click="processRequest('createGroupMember', 'Requesting To Join the group')">Join Group</button>
-          <button v-if="acceptInviteToJOin" class="btn btn-success" type="button" @click="processRequest('updateGroupMember', 'Accepting Invitation to Join Group')">Accept Invite</button>
-          <button v-if="cancelRequestToJoin" class="btn btn-danger" type="button" @click="processRequest('deleteGroupMember', 'Cancelling Join Request')">Cancel Join Request</button>
+          <button v-if="acceptInviteToJoin" class="btn btn-success" type="button" @click="processRequest('activateGroupMember', 'Accepting Invitation to Join Group')">Accept Invite</button>
+          <button v-if="acceptInviteToJoin" class="btn btn-danger" type="button" @click="processRequest('removeGroupMember', 'Decling Invitation to Join Group')">Decline Invite</button>
+          <button v-if="cancelRequestToJoin" class="btn btn-danger" type="button" @click="processRequest('removeGroupMember', 'Cancelling Join Request')">Cancel Join Request</button>
           <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">cancel</button>
         </div>
         <FlashMessage :message="message" :msg-type="msgType" @clear-message="message = null" />
@@ -30,7 +30,7 @@
 </template>
 <script>
 
-import { mapGetters, mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import FlashMessage from '@/components/FlashMessage'
 import { fileLocations } from "@/config/BaseConfig"
 
@@ -42,46 +42,48 @@ export default {
   },
 
   props: {
-    group: { type: Object, required: true },
-    memberAction: { type: String, required: true }
+    group: { type: Object, required: true }
   },
 
   data () {
     return {
       modalName: 'groupSummaryModal',
-      avatarLocation: fileLocations.groupPhoto,
-      requestToJoin: null,
-      cancelRequestToJoin: false,
-      acceptInviteToJOin: false,
+      photoLocation: fileLocations.groups,
       message: null,
       msgType: null
     }
   },
 
   computed: {
+
     ...mapGetters('auth', ['authUser']),
-    ...mapGetters('group', ['error'])
-  },
 
-  watch: {
-    memberAction: function (newVal, oldVal) {
-      this.requestToJoin = false
-      this.cancelRequestToJoin = false
-      this.acceptInviteToJOin = false
-
-      switch (newVal) {
-        case 'requestToJoin':
-          this.requestToJoin = true
-          this.currentState = ""
-          break
-        case 'cancelRequestToJoin':
-          this.cancelRequestToJoin = true
-          this.currentState = 'Your request to join the group is still pending approval'
-          break
-        case 'acceptInviteToJOin':
-          this.acceptInviteToJOin = true
-          this.currentState = ""
-          break
+    requestToJoin () {
+      if (this.group.my_member === null) {
+        return true
+      } else {
+        return false
+      }
+    },
+    cancelRequestToJoin () {
+      if (this.group.my_member !== null && this.group.my_member.status === 'requested') {
+        return true
+      } else {
+        return false
+      }
+    },
+    acceptInviteToJoin () {
+      if (this.group.my_member !== null && this.group.my_member.status === 'invited') {
+        return true
+      } else {
+        return false
+      }
+    },
+    currentState () {
+      if (this.group.my_member !== null && this.group.my_member.status === 'requested') {
+        return 'Your request to join the group is still pending approval'
+      } else {
+        return null
       }
     }
   },
@@ -91,10 +93,27 @@ export default {
   },
 
   methods: {
-    ...mapActions('group', ['createGroupMember', 'removeGroupMember', 'updateGroupMember']),
+    ...mapActions('group', ['createGroupMember', 'removeGroupMember', 'activateGroupMember']),
 
     processRequest (realAction, userAction) {
-      this[realAction](this.friend.friend_resource_id)
+      let payload = {}
+      if (realAction === 'createGroupMember') {
+        payload = {
+          groupId: this.group.id,
+          action: 'personal',
+          data: {
+            user_id: this.authUser.id
+          }
+        }
+      } else {
+        payload = {
+          groupId: this.group.id,
+          memberId: this.group.my_member.id,
+          action: 'personal'
+        }
+      }
+
+      this[realAction](payload)
         .then(response => {
           this.$emit('close-modal', this.modalName)
         })

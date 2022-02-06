@@ -10,7 +10,7 @@
       </div>
     </div>
     <h5 class="mt-3 text-center hd-style">Add New Members
-      <router-link to="/groups/' + getGroup.id + '/members">
+      <router-link :to="'/groups/' + getGroup.id + '/members'">
         <font-awesome-icon icon="users" class="ms-2 isClickable hd-style" />
       </router-link>
     </h5>
@@ -51,7 +51,7 @@
             :person="user"
             :badges="user.friend === true ? [{ color: 'info', text: 'Friend' }]: []">
             <template v-slot:options>
-              <button v-if="!user.addFriend" class="btn btn-sm btn-primary" @click="createMemberInvite(user.id)">Invite to Join</button>
+              <button v-if="!user.inviteMember" class="btn btn-sm btn-primary" @click="createMemberInvite(user.id)">Invite to Join</button>
               <span v-else color="text-success">... member invite sent</span>
             </template>
             <template v-slot:action-error>
@@ -146,7 +146,11 @@ export default {
 
     createMemberInvite (userId) {
       const payload = {
-        user_id: userId
+        id: this.getGroup.id,
+        action: 'invite',
+        data: {
+          user_id: userId
+        }
       }
       this.createGroupMember(payload)
         .then(response => {
@@ -174,7 +178,6 @@ export default {
         .then(response => {
           this.userList = response.data.list.map(obj => ({ ...obj, inviteMember: false, friend: response.data.friend_ids.includes(obj.id), actionMsg: null, actionMsgType: null }))
           this.list = this.userList
-          console.log(this.userList)
           if (this.list.length === 0) {
             this.screenMsg = "No people found for search criteria"
             this.screenMsgType = "info"

@@ -16,7 +16,7 @@
       <span class="input-group-text isClickable" @click="this.$emit('update:modelValue', '')">
         <font-awesome-icon :icon="['far', 'times-circle']" class="text-secondary" />
       </span>
-      <span class="input-group-text isClickable"  :class="modelValue.trim().length > 0 ? 'bg-success text-white' : 'text-secondary'" @click="startSearch">
+      <span class="input-group-text isClickable"  :class="modelValue.trim().length > 0 || allowEmptySearch === true ? 'bg-success text-white' : 'text-secondary'" @click="startSearch">
         <font-awesome-icon icon="search" />
       </span>
     </div>
@@ -35,6 +35,7 @@ export default {
   props: {
     name: { type: String, required: true },
     modelValue: { type: String, required: true },
+    allowEmptySearch: { type: Boolean, default: false },
     placeholder: { type: String, default: null },
     externalErrors: { default: {} },
     layoutClass: { type: String, default: null },
@@ -72,7 +73,7 @@ export default {
       this.$emit('update:modelValue', event.target.value)
     },
     startSearch () {
-      if (this.modelValue.trim().length > 0) {
+      if (this.modelValue.trim().length > 0 || this.allowEmptySearch) {
         this.$emit('start-search')
       } else {
         this.internalErrors = ['Enter some search text then press search']

@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import store from "@/store/index"
-import auth from "../middleware/auth"
+import auth from "@/middleware/auth"
+import groupAdmin from "@/middleware/groupAdmin"
 // import admin from "../middleware/admin"
 import guest from "../middleware/guest"
 import middlewarePipeline from "@/router/middlewarePipeline"
@@ -29,7 +30,8 @@ const FriendSearch = () => import('../views/Friends/FriendSearch')
 
 // Group Management Routes
 const NewGroup = () => import('../views/Groups/NewGroup')
-const GroupList = () => import('../views/Groups/GroupList')
+const MyGroups = () => import('../views/Groups/MyGroups')
+const GroupSearch = () => import('../views/Groups/GroupSearch')
 const GroupLayout = () => import('../views/Groups/GroupLayout')
 const GroupLayoutDetails = () => import('../views/Groups/GroupLayouts/GroupDetails')
 const GroupLayoutMembers = () => import('../views/Groups/GroupLayouts/GroupMembers')
@@ -109,10 +111,16 @@ const GroupsChildRoute = (prop) => [
     component: NewGroup
   },
   {
+    path: '/groups/search/',
+    name: prop + '.search',
+    meta: { middleware: [auth], name: 'search' },
+    component: GroupSearch
+  },
+  {
     path: '/groups/:groupId',
     name: prop + '.control',
     props: true,
-    meta: { middleware: [auth], name: 'control' },
+    meta: { name: 'control' },
     component: GroupLayout,
     children: GroupLayoutChildRoute(prop + '.control')
   },
@@ -120,7 +128,7 @@ const GroupsChildRoute = (prop) => [
     path: '/groups/',
     name: prop + '.myGroups',
     meta: { middleware: [auth], name: 'myGroups' },
-    component: GroupList
+    component: MyGroups
   }
 ]
 
@@ -140,7 +148,7 @@ const GroupLayoutChildRoute = (prop) => [
   {
     path: '/groups/:groupId/add-members/',
     name: prop + '.addMembers',
-    meta: { middleware: [auth], name: 'addMembers' },
+    meta: { middleware: [auth, groupAdmin], name: 'addMembers' },
     component: GroupLayoutAddMembers
   }
 ]

@@ -1,8 +1,5 @@
 <template>
-  <div v-if="loading === true" class="col-md-8 col-lg-6 col-xl-5 mt-5">
-    <DataLoading />
-  </div>
-  <div v-if="loading === false" class="col-12">
+  <div class="col-12">
     <div class="text-center mb-4">
       <h4>My Groups</h4>
       <div>
@@ -12,7 +9,12 @@
         <span class="ms-4"><a href="#" @click="myGroups()">Refresh</a></span>
       </div>
     </div>
-    <GroupListCards />
+    <div v-if="loading === true" class="col-md-8 col-lg-6 col-xl-5 mt-5">
+      <DataLoading />
+    </div>
+    <div v-else class="col-12">
+      <GroupListCards />
+    </div>
   </div>
 </template>
 <script>
@@ -22,7 +24,7 @@ import DataLoading from '@/components/LoadingGifs/DataLoading'
 import GroupListCards from './GroupListCards'
 
 export default {
-  name: 'GroupList',
+  name: 'MyGroups',
 
   components: {
     GroupListCards,

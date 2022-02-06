@@ -64,7 +64,7 @@ export default {
       if (typeof payload === 'string') {
         this.modals[payload].show()
       } else {
-        if (this.data[payload.focus] === null) {
+        if (this.modals[payload.modal] === null) {
           this.data[payload.focus] = payload.data
         } else {
           this.data[payload.focus] = payload.data

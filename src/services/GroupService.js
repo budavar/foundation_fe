@@ -10,6 +10,9 @@ export default {
   myGroups () {
     return API.apiClient.get(`/groups`)
   },
+  search (payload) {
+    return API.apiClient.get(`/groups/search`, { params: payload })
+  },
   update (id, payload) {
     const config = {
       header: {
@@ -20,8 +23,20 @@ export default {
     return API.apiClient.post('/groups/' + id, payload, config)
   },
 
-  memberCreate (id, payload) {
-    return API.apiClient.post('/groups/' + id + '/new-member', payload)
+  memberActivate (memberId) {
+    return API.apiClient.put('/group-members/' + memberId + '/activate')
+  },
+  memberBlock (memberId) {
+    return API.apiClient.put('/group-members/' + memberId + '/block')
+  },
+  memberChangeRole (payload) {
+    return API.apiClient.put('/group-members/' + payload.memberId + '/change-member-role', payload.data)
+  },
+  memberCreate (payload) {
+    return API.apiClient.post('/groups/' + payload.groupId + '/new-member', payload.data)
+  },
+  memberRemove (memberId) {
+    return API.apiClient.delete('/group-members/' + memberId)
   }
 
 }

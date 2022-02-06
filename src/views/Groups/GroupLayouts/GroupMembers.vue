@@ -10,18 +10,19 @@
       </div>
     </div>
     <h5 class="mt-3 text-center hd-style">Members
-      <router-link :to="'/groups/' + this.getGroup.id + '/add-members'">
+      <router-link
+        v-if="['owner', 'admin'].includes(getGroup._my_authority)"
+        :to="'/groups/' + this.getGroup.id + '/add-members'">
         <font-awesome-icon icon="plus-circle" class="ms-2 isClickable hd-style" />
       </router-link>
     </h5>
     <ul class="no-bullets">
-      <li v-for="member in getGroup.members" :key="member.id">
-        <PersonLine
+      <li v-for="member in getGroup.members" :key="member.id + member.status + member.role">
+        <GroupMemberLIne
           :class="allowManagement ? 'isClickable bg-hover' : ''"
-          :person="member.user"
-          :badges="categoryBadge(member)"
+          :member="member"
           @click="showOptions(member)">
-        </PersonLine>
+        </GroupMemberLIne>
       </li>
     </ul>
   </div>
@@ -32,13 +33,13 @@
 import { mapGetters } from 'vuex'
 import { fileLocations } from "@/config/BaseConfig"
 import { codeDefinitions } from "@/config/TextDefinitions"
-import PersonLine from '@/components/PersonLine'
+import GroupMemberLIne from './GroupMemberLIne'
 
 export default {
   name: "GroupMembers",
 
   components: {
-    PersonLine
+    GroupMemberLIne
   },
 
   data () {
@@ -61,59 +62,6 @@ export default {
   },
 
   methods: {
-
-    categoryBadge (member) {
-      switch (member.status) {
-        case 'invited':
-          return [
-            {
-              color: 'success',
-              text: 'Invited to Join'
-            }
-          ]
-        case 'blocked':
-          return [
-            {
-              color: 'danger',
-              text: 'Blocked'
-            }
-          ]
-        case 'requested':
-          return [
-            {
-              color: 'warning',
-              text: 'Requested to Join'
-            }
-          ]
-      }
-
-      switch (member.role) {
-        case 'owner':
-          return [
-            {
-              color: 'primary',
-              text: 'Owner'
-            }
-          ]
-        case 'admin':
-          return [
-            {
-              color: 'info',
-              text: 'Admin'
-            }
-          ]
-        case 'member':
-          return []
-        default:
-          return [
-            {
-              color: 'dark',
-              text: member.role
-            }
-          ]
-      }
-    },
-
     showOptions (member) {
       if (!this.allowManagement) {
         return
