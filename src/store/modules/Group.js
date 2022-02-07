@@ -30,6 +30,10 @@ export const mutations = {
   },
   SET_CURRENT_GROUP (state, payload) {
     state.currentGroup = payload
+    const index = state.currentGroup.members.findIndex(item => item.user_id === state.currentGroup.owner_id)
+    if (index > -1) {
+      state.currentGroup.my_member = state.currentGroup.members[index]
+    }
   },
   SET_STATUS (state, payload) {
     const index = state.groups.findIndex(item => item.id === payload.id)
@@ -48,6 +52,11 @@ export const mutations = {
     // Update the member being managed
     let index = state.currentGroup.members.findIndex(item => item.id === payload.id)
     state.currentGroup.members[index] = payload
+    console.log(payload)
+    if (state.currentGroup.my_member.user_id === payload.user_id) {
+      state.currentGroup.my_member = payload
+    }
+    state.currentGroup.my_member = payload
     // Get the Group entry from the list
     index = state.groups.findIndex(item => item.id === payload.group_id)
     if (index > -1) {
@@ -99,6 +108,22 @@ export const actions = {
       GroupService.memberChangeRole(payload)
         .then((response) => {
           commit("UPDATE_MEMBER", response.data)
+          resolve(response)
+        })
+        .catch((error) => {
+          console.log(error)
+          commit("SET_ERROR", error.response)
+          reject(error)
+        })
+    })
+    /* eslint-enable */
+  },
+  closeOpenGroup ({ commit }, payload) {
+    /* eslint-disable */
+    return new Promise((resolve, reject) => {
+      GroupService.closeOpen(payload)
+        .then((response) => {
+          commit("SET_GROUP_STATUS", response.data)
           resolve(response)
         })
         .catch((error) => {
@@ -246,9 +271,20 @@ export const actions = {
     })
     /* eslint-enable */
   },
-  updateGroupMember ({ commit }) {
+  updateMemberSettings ({ commit }, payload) {
     /* eslint-disable */
-    commit("SET_ERROR", error.response)
+    return new Promise((resolve, reject) => {
+      GroupService.memberUpdateSettings(payload)
+        .then((response) => {
+          commit("UPDATE_MEMBER", response.data)
+          resolve(response)
+        })
+        .catch((error) => {
+          console.log(error)
+          commit("SET_ERROR", error.response)
+          reject(error)
+        })
+    })
     /* eslint-enable */
   }
 }

@@ -1,6 +1,9 @@
 import * as API from "@/services/API"
 
 export default {
+  closeOpen (payload) {
+    return API.apiClient.put('/groups/' + payload.groupId + '/' + payload.action)
+  },
   create (payload) {
     return API.apiClient.post('/groups', payload)
   },
@@ -37,6 +40,9 @@ export default {
   },
   memberRemove (memberId) {
     return API.apiClient.delete('/group-members/' + memberId)
+  },
+  memberUpdateSettings (payload) {
+    return API.apiClient.put('/group-members/' + payload.memberId + '/update-settings', payload.data)
   }
 
 }

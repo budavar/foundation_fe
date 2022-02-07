@@ -9,7 +9,7 @@
         @click="selectOption(option.optionKey, option.action)">
         <font-awesome-icon
           :icon="[option.iconPrefix, option.iconName]"
-          class="fa-2x" />
+          class="icon-size-1-5" />
       </li>
     </ul>
   </div>
@@ -80,6 +80,16 @@ export default {
             route: null
           },
           authorisation: ['owner', 'admin']
+        },
+        {
+          optionKey: 'settings',
+          iconPrefix: 'fas',
+          iconName: 'cog',
+          action: {
+            modal: null,
+            route: 'settings'
+          },
+          authorisation: ['owner', 'admin']
         }
       ]
     }
@@ -122,6 +132,9 @@ export default {
 }
 .purple-text {
   color: var(--bs-purple);
+}
+.icon-size-1-5 {
+  font-size: 1.5em;
 }
 .entity-navbar-option:hover {
   color: var(--bs-light);
