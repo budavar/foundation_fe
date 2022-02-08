@@ -16,6 +16,12 @@ export const mutations = {
   ADD_MEMBER (state, member) {
     state.currentGroup.members.push(member)
   },
+  CHANGE_OF_GROUP_STATUS (state, payload) {
+    const index = state.groups.findIndex(item => item.id === payload.id)
+    if (index > -1) {
+      state.groups[index].status = payload.status
+    }
+  },
   REMOVE_GROUP (state, payload) {
     const index = state.groups.findIndex(item => item.id === payload)
     if (index > -1) {
@@ -52,7 +58,6 @@ export const mutations = {
     // Update the member being managed
     let index = state.currentGroup.members.findIndex(item => item.id === payload.id)
     state.currentGroup.members[index] = payload
-    console.log(payload)
     if (state.currentGroup.my_member.user_id === payload.user_id) {
       state.currentGroup.my_member = payload
     }
@@ -123,7 +128,8 @@ export const actions = {
     return new Promise((resolve, reject) => {
       GroupService.closeOpen(payload)
         .then((response) => {
-          commit("SET_GROUP_STATUS", response.data)
+          commit("SET_CURRENT_GROUP", response.data)
+          commit("CHANGE_OF_GROUP_STATUS", response.data)
           resolve(response)
         })
         .catch((error) => {

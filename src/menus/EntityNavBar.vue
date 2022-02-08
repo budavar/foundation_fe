@@ -43,8 +43,8 @@ export default {
         },
         {
           optionKey: 'details',
-          iconPrefix: 'far',
-          iconName: 'question-circle',
+          iconPrefix: 'fas',
+          iconName: 'info-circle',
           action: {
             modal: null,
             route: 'details'

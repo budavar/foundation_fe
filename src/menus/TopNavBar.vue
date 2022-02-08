@@ -13,16 +13,27 @@
         </ul>
 
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <router-link to="/admin/list" class="nav-link" >
-            <font-awesome-icon icon="cog" /></router-link>
+          <li class="me-3 nav-item">
+            <div class="dropdown">
+              <span
+                class="nav-link nav-icons pt-1 pb-1"
+                type="button"
+                id="dropdownMenuClickableInside"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="outside"
+                aria-expanded="false">
+                <font-awesome-icon icon="bell" />
+                <sup class="bg-danger rounded-pill"><span class="badge">27</span></sup>
+              </span>
+              <NotificationDropDown :load-store="true" />
+            </div>
           </li>
-          <li class="nav-item">
-            <router-link to="/profiles/my-profile" class="nav-link" >
+          <li class="me-3 nav-item">
+            <router-link to="/profiles/my-profile" class="nav-link nav-icons  pt-1 pb-1" >
             <font-awesome-icon icon="user" /></router-link>
           </li>
           <li class="nav-item">
-            <span class="nav-link">
+            <span class="nav-link nav-icons pt-1 pb-1">
             <font-awesome-icon icon="sign-out-alt" @click="logout"/>
             </span>
           </li>
@@ -36,8 +47,14 @@
 
 <script>
 
+import NotificationDropDown from "@/views/Notifications/NotificationDropDown"
+
 export default {
   name: "TopNavBarWeb",
+
+  components: {
+    NotificationDropDown
+  },
 
   methods: {
     logout () {
@@ -46,3 +63,17 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+@media (min-width: 768px) {
+    .dropdown-menu {
+        width: 500px !important;  /* change the number to whatever that you need */
+        padding: 0px !important;
+        margin-top: 20px !important;
+    }
+}
+
+.nav-icons {
+  font-size: 1.5rem;
+}
+</style>

@@ -87,6 +87,8 @@ export default {
       this.closeOpenGroup(payload)
         .then(response => {
           this.serverRequestInProgress = false
+          this.closeGroup = false
+          this.openGroup = false
           this.$emit('settings-updated')
         })
         .catch(error => {

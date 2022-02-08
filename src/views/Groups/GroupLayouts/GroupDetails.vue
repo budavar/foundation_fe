@@ -1,10 +1,6 @@
 <template>
   <div>
-    <img v-if="getGroup.photo === null" src="https://via.placeholder.com/480x270.png" class="w-100">
-    <img v-else :src="photoLocation + getGroup.photo" class="w-100">
-    <div class="text-center mt-2">
-      <h5><strong>{{getGroup.name}}</strong></h5>
-    </div>
+    <GroupHeadingLarge />
     <h6 class="attr-label-style mt-3 mb-0">Purpose of the Group</h6>
     <p>{{getGroup.description}}</p>
     <h6 class="attr-label-style mb-0">Group Visibility</h6>
@@ -26,9 +22,14 @@
 import { mapGetters } from 'vuex'
 import { fileLocations } from "@/config/BaseConfig"
 import { codeDefinitions } from "@/config/TextDefinitions"
+import GroupHeadingLarge from './GroupHeadingLarge'
 
 export default {
   name: "GroupDetails",
+
+  components: {
+    GroupHeadingLarge
+  },
 
   data () {
     return {

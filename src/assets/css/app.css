@@ -17,3 +17,6 @@
 .bg-indigo-light {
   background: #e9def5;
 }
+.bg-indigo {
+  background: var(--bs-indigo) 
+}

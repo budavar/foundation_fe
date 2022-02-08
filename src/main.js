@@ -12,10 +12,10 @@ import "bootstrap"
 import mitt from 'mitt'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faQuestionCircle, faCalendarAlt, faEnvelope, faEye, faEyeSlash, faTimesCircle, faTrashAlt } from '@fortawesome/free-regular-svg-icons'
-import { faEdit, faBars, faCog, faUser, faUsers, faUserFriends, faSignInAlt, faSignOutAlt, faUserPlus, faKey, faHome, faBuilding, faTools, faCaretDown, faSearch, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
+import { faCalendarAlt, faEnvelope, faEye, faEyeSlash, faTimesCircle, faTrashAlt } from '@fortawesome/free-regular-svg-icons'
+import { faBell, faEllipsisV, faInfoCircle, faEdit, faBars, faCog, faUser, faUsers, faUserFriends, faSignInAlt, faSignOutAlt, faUserPlus, faKey, faHome, faBuilding, faTools, faCaretDown, faSearch, faPlusCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faQuestionCircle, faCalendarAlt, faEdit, faBars, faCog, faUser, faUsers, faUserFriends, faSignInAlt, faSignOutAlt, faUserPlus, faEnvelope, faKey, faEye, faEyeSlash, faHome, faBuilding, faTools, faCaretDown, faTimesCircle, faSearch, faPlusCircle, faTrashAlt)
+library.add(faBell, faEllipsisV, faInfoCircle, faCalendarAlt, faEdit, faBars, faCog, faUser, faUsers, faUserFriends, faSignInAlt, faSignOutAlt, faUserPlus, faEnvelope, faKey, faEye, faEyeSlash, faHome, faBuilding, faTools, faCaretDown, faTimesCircle, faSearch, faPlusCircle, faTrashAlt)
 
 const eventBus = mitt()
 
