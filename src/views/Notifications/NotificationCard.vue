@@ -19,6 +19,9 @@
             id="n-card-dd"
             data-bs-toggle="dropdown"
             aria-expanded="false">
+            <span class="ms-3 me-3" :class="notification.status === 'unread' ? 'text-primary' : 'text-secondary'">
+              <font-awesome-icon icon="dot-circle" />
+            </span>
             <font-awesome-icon icon="ellipsis-v" />
           </div>
           <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="n-card-dd">

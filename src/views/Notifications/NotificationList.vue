@@ -1,13 +1,13 @@
 <template>
   <div class="d-flex bg-indigo text-white p-2 m-0">
-    <h5>
-      Notifications
-    </h5>
-    <div class="flex-grow-1">
+    <div class="flex-grow-1 mt-1">
+      <h4>
+        Notifications
+      </h4>
     </div>
     <div class="dropdown">
       <div
-        class="nav-link nav-icons text-end"
+        class="nav-link nav-icons"
         type="button"
         id="notificationsDropDown"
         data-bs-toggle="dropdown"
@@ -29,7 +29,7 @@
     <div v-if="loading === true" class="text-center">
       <DataLoading />
     </div>
-    <div v-if="loading === false" class="p-1">
+    <div v-if="loading === false" class="p-1 dropdown-menu-x">
       <div
         v-for="notification in notifications" :key="notification.id">
         <NotificationCard
@@ -37,6 +37,10 @@
           :display-scope="displayScope"/>
       </div>
     </div>
+    <MoreToLoadGif class="pt-2 pb-2"
+      :moreToShow="loadingControls.more"
+      :showGif="loadingControls.nextFetchLoading"
+      @load-more="loadMore()"/>
   </div>
 </template>
 
@@ -44,6 +48,7 @@
 
 import { mapActions, mapGetters } from 'vuex'
 import DataLoading from '@/components/LoadingGifs/DataLoading'
+import MoreToLoadGif from '@/components/LoadingGifs/MoreToLoadGif'
 import NotificationCard from './NotificationCard'
 
 export default {
@@ -51,7 +56,8 @@ export default {
 
   components: {
     NotificationCard,
-    DataLoading
+    DataLoading,
+    MoreToLoadGif
   },
 
   props: {
@@ -67,18 +73,35 @@ export default {
   },
 
   computed: {
-    ...mapGetters('notification', ['notifications', 'loading', 'error'])
+    ...mapGetters('notification', ['notifications', 'loadingControls', 'loading', 'error'])
   },
 
   created () {
     if (this.loadStore) {
-      this.loadNotifications()
+      const payload = {
+        pagination: 'init',
+        current_fetch: 0
+      }
+      this.loadNotifications(payload)
     }
   },
 
   methods: {
-    ...mapActions('notification', ['loadNotifications'])
+    ...mapActions('notification', ['loadNotifications']),
+    loadMore () {
+      const payload = {
+        pagination: 'more',
+        current_fetch: this.loadingControls.fetchRequests
+      }
+      this.loadNotifications(payload)
+    }
   }
-
 }
 </script>
+
+<style scoped>
+.dropdown-menu-x {
+  max-height:65vh;
+  overflow-y: auto;
+}
+</style>

@@ -158,6 +158,7 @@ export const actions = {
   createGroupMember ({ commit }, payload) {
     /* eslint-disable */
     return new Promise((resolve, reject) => {
+      console.log(payload)
       GroupService.memberCreate(payload)
         .then((response) => {
           if (payload.action === 'member-management') {

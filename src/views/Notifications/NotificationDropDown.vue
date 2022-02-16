@@ -1,5 +1,5 @@
 <template>
-  <span class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownMenuClickableInside">
+  <span class="dropdown-menu dropdown-menu-end float-end shadow" aria-labelledby="dropdownMenuClickableInside" style="height: 90%;">
     <NotificationList
       display-scope="summary"
       background="bg-indigo-light"

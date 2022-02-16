@@ -146,7 +146,7 @@ export default {
 
     createMemberInvite (userId) {
       const payload = {
-        id: this.getGroup.id,
+        groupId: this.getGroup.id,
         action: 'invite',
         data: {
           user_id: userId
